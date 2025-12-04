@@ -30,48 +30,38 @@ public class SimpleTests {
     @ParameterizedTest
     @MethodSource("missingPropertyTestCases")
     public void test_missing_property_throws_exception(
-            Consumer<DbConnection.Builder> builderSetup,
+            DbConnection.Builder builder,
             String expectedMessage) {
 
-        Exception exception = assertThrows(IllegalStateException.class, () -> {
-            DbConnection.Builder builder = new DbConnection.Builder();
-            builderSetup.accept(builder);
-            builder.build();
-        });
-
+        Exception exception = assertThrows(IllegalStateException.class, builder::build);
         assertEquals(expectedMessage, exception.getMessage());
     }
 
     private static Stream<Arguments> missingPropertyTestCases() {
-        return Stream.of(
-                Arguments.of(
-                        (Consumer<DbConnection.Builder>) b -> b
-                                .setHost("localhost")
-                                .setPort("3306")
-                                .setCredentials("admin", "adminpass"),
-                        "Database type was not set!"
-                ),
-                Arguments.of(
-                        (Consumer<DbConnection.Builder>) b -> b
-                                .setDbType(DbConnection.DbType.MYSQL)
-                                .setPort("3306")
-                                .setCredentials("admin", "adminpass"),
-                        "Host was not set!"
-                ),
-                Arguments.of(
-                        (Consumer<DbConnection.Builder>) b -> b
-                                .setDbType(DbConnection.DbType.MYSQL)
-                                .setHost("localhost")
-                                .setCredentials("admin", "adminpass"),
-                        "Port was not set!"
-                ),
-                Arguments.of(
-                        (Consumer<DbConnection.Builder>) b -> b
-                                .setDbType(DbConnection.DbType.MYSQL)
-                                .setHost("localhost")
-                                .setPort("3306"),
-                        "Credentials were not set!"
-                )
-        );
+    return Stream.of(
+        Arguments.of(
+            new DbConnection.Builder()
+                .setHost("localhost")
+                .setPort("3306")
+                .setCredentials("admin", "adminpass"),
+            "Database type was not set!"),
+        Arguments.of(
+            new DbConnection.Builder()
+                .setDbType(DbConnection.DbType.MYSQL)
+                .setPort("3306")
+                .setCredentials("admin", "adminpass"),
+            "Host was not set!"),
+        Arguments.of(
+            new DbConnection.Builder()
+                .setDbType(DbConnection.DbType.MYSQL)
+                .setHost("localhost")
+                .setCredentials("admin", "adminpass"),
+            "Port was not set!"),
+        Arguments.of(
+            new DbConnection.Builder()
+                .setDbType(DbConnection.DbType.MYSQL)
+                .setHost("localhost")
+                .setPort("3306"),
+            "Credentials were not set!"));
     }
 }
